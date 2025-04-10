@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Ticket</title>
+</head>
+<body>
+    <h2>Book Ticket for {{ movie.MovieName }}</h2>
+    <form method="POST">
+        <label>Show Number:</label><br>
+        <input type="number" name="showno" required><br><br>
+
+        <label>Date:</label><br>
+        <input type="date" name="date" required><br><br>
+
+        <label>Time:</label><br>
+        <input type="time" name="time" required><br><br>
+
+        <label>Number of Tickets:</label><br>
+        <input type="number" name="tickets" required><br><br>
+
+        <button type="submit">Proceed to Payment</button>
+    </form>
+</body>
+</html>
