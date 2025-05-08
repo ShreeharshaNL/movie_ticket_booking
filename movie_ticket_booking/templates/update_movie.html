@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Movie - FILMSMITH Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Style modifications for Update Movie page */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 30px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+        }
+
+        .btn-update {
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-update:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background-color: #ccc;
+            color: #333;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .btn-back:hover {
+            background-color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h1>Update Movie</h1>
+        <form method="POST">
+            <div>
+                <label for="title">Title</label>
+                <input type="text" name="title" id="title" value="{{ movie.title }}" required>
+            </div>
+            <div>
+                <label for="genre">Genre</label>
+                <input type="text" name="genre" id="genre" value="{{ movie.genre }}" required>
+            </div>
+            <div>
+                <label for="description">Description</label>
+                <textarea name="description" id="description" required>{{ movie.description }}</textarea>
+            </div>
+            <button type="submit">Update Movie</button>
+        </form>
+        
+    </div>
+</body>
+
+</html>

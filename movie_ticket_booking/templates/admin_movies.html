@@ -1,0 +1,71 @@
+<!-- admin_movies.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Movies</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- Sidebar (same as before) -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="admin_movies.html">Manage Movies</a></li>
+            <li><a href="admin_showtimes.html">Manage Showtimes</a></li>
+            <li><a href="admin_bookings.html">View Bookings</a></li>
+            <li><a href="admin_seats.html">Manage Seats</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Manage Movies</h1>
+
+        <!-- Form to add a new movie -->
+        <form action="add_movie.php" method="POST">
+            <label for="movie_name">Movie Name:</label>
+            <input type="text" id="movie_name" name="movie_name" required>
+            
+            <label for="movie_description">Movie Description:</label>
+            <textarea id="movie_description" name="movie_description" rows="4" required></textarea>
+
+            <label for="movie_duration">Duration (in minutes):</label>
+            <input type="number" id="movie_duration" name="movie_duration" required>
+
+            <label for="movie_poster">Movie Poster URL:</label>
+            <input type="url" id="movie_poster" name="movie_poster" required>
+
+            <button type="submit">Add Movie</button>
+        </form>
+
+        <!-- List of existing movies (to edit or delete) -->
+        <h2>Existing Movies</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Movie Name</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                    <th>Poster</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populate this table dynamically with PHP or your backend -->
+                <tr>
+                    <td>Movie 1</td>
+                    <td>A great movie</td>
+                    <td>120 mins</td>
+                    <td><img src="path/to/poster.jpg" alt="Movie Poster" width="50"></td>
+                    <td>
+                        <a href="edit_movie.php?id=1">Edit</a>
+                        <a href="delete_movie.php?id=1">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

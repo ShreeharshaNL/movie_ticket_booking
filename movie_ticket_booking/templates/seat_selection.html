@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Selection for Showtime {{ showtime_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Select Your Seats for Showtime {{ showtime_id }}</h1>
+        
+        <form action="{{ url_for('seat_selection', showtime_id=showtime_id) }}" method="POST">
+            <div class="grid-container">
+                {% for seat in seats %}
+                    <div class="seat {% if seat.status == 'booked' %}booked{% else %}available{% endif %}">
+                        <label>
+                            <input type="checkbox" name="selected_seats" value="{{ seat.seat_number }}" {% if seat.status == 'booked' %}disabled{% endif %}>
+                            {{ seat.seat_number }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn">Book Selected Seats</button>
+        </form>
+    </div>
+</body>
+</html>

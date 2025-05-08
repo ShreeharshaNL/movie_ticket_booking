@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FILMSMITH - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar h1, .logo a {
+            color: #e63946;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: #555;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #e63946;
+        }
+
+        .container {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 280px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+            color: #343a40;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 0.5rem 0.3rem;
+            padding: 0.6rem 1.4rem;
+            background-color: #e63946;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #d62839;
+        }
+
+        .btn.secondary {
+            background-color: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <a href="/">🎬 <strong>FilmSmith</strong></a>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>🎬 Welcome to FILMSMITH</h1>
+        <p class="subtitle">Your ultimate destination for movies!</p>
+
+        <div class="cards">
+            <div class="card">
+                <h2>🙋‍♂️ Registered User</h2>
+                <a href="{{ url_for('login') }}" class="btn">Login</a>
+                <a href="{{ url_for('register') }}" class="btn secondary">Register</a>
+            </div>
+            <div class="card">
+                <h2>🛠 Admin</h2>
+                <a href="{{ url_for('admin_login') }}" class="btn">Admin Login</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

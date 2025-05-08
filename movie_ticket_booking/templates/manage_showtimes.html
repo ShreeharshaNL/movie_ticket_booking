@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Showtimes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Manage Showtimes for Movie</h2>
+        <form action="/admin/showtimes/{{ movie_id }}" method="POST">
+            <div class="form-group">
+                <label for="showtime">Showtime</label>
+                <input type="text" name="showtime" id="showtime" required>
+            </div>
+            <button type="submit" class="btn">Add Showtime</button>
+        </form>
+
+        <h3>Existing Showtimes</h3>
+        <ul>
+            {% for showtime in showtimes %}
+                <li>{{ showtime.showtime }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

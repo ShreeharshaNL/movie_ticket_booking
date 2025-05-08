@@ -1,0 +1,379 @@
+/* General Styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.nav-links {
+    margin-top: 10px;
+}
+
+.nav-links a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+/* Header */
+h1 {
+    font-size: 2.5rem;
+    color: #333;
+}
+
+/* Flexbox for Cards (Movies, Dashboard) */
+.cards {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 280px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+}
+
+.card .btn {
+    display: block;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.card .btn.secondary {
+    background-color: #007bff;
+}
+
+.card .btn:hover {
+    background-color: #218838;
+}
+
+/* Form Styling */
+form input, form button {
+    padding: 10px;
+    margin: 10px 0;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+form button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+form button:hover {
+    background-color: #218838;
+}
+
+/* Flash Messages */
+.flash {
+    padding: 10px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Movie Card Styling */
+.movie-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.movie-card h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.movie-card p {
+    color: #666;
+}
+
+/* Seat Selection */
+.seat {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    text-align: center;
+    line-height: 40px;
+    background-color: #dcdcdc;
+    border: 2px solid #000;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.seat.available {
+    background-color: #66cc66;
+}
+
+.seat.booked {
+    background-color: #ff6666;
+}
+
+.seat.selected {
+    background-color: #ffeb3b;
+}
+
+.seat:disabled {
+    cursor: not-allowed;
+}
+
+.seat:hover {
+    background-color: #ccc;
+}
+
+/* Seat Selection Layout */
+.seat-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.row h3 {
+    margin-right: 20px;
+}
+
+/* Theater Layout - Grid */
+.theater-layout {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); /* 12 seats per row */
+    gap: 10px;
+    justify-content: center;
+    margin: 20px;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        text-align: left;
+        padding: 15px;
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .nav-links a {
+        margin: 0 10px;
+    }
+
+    .cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .seat-selection {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .theater-layout {
+        grid-template-columns: repeat(6, 1fr); /* 6 seats per row for small screens */
+    }
+}
+
+/* Buttons (for different sections) */
+.btn {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 12px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn.secondary {
+    background-color: #007bff;
+}
+
+.btn:hover {
+    background-color: #218838;
+}
+
+.btn.secondary:hover {
+    background-color: #0056b3;
+}
+/* Your existing CSS styles */
+
+/* New styles for animations and better UI */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+}
+
+h1, h2, h3, h4 {
+    text-align: center;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+button, .btn {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: #218838;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    padding: 10px;
+    width: 100%;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+    outline: none;
+    border-color: #007bff;
+    transition: border-color 0.3s ease;
+}
+
+form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.flash {
+    margin-top: 20px;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.flash.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.flash.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.flash.info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.flash.warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.animate-fade-in {
+    animation: fadeIn 1.5s ease-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

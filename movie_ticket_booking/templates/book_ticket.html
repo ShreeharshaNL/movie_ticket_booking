@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seat Selection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Booking: {{ show.title }}</h2>
+        <p><strong>Date & Time:</strong> {{ show.show_datetime }}</p>
+        <p><strong>Venue:</strong> {{ show.venue }}</p>
+
+        <form method="POST">
+            <label for="num_seats">Select number of seats:</label><br>
+            <input type="number" name="num_seats" id="num_seats" min="1" max="10" required><br><br>
+
+            <button type="submit">Confirm Booking</button>
+        </form>
+    </div>
+</body>
+</html>
