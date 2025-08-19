@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Showtime</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .showtime-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .showtime-list li {
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      background: #28a745;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Select a Showtime for {{ movie.title }}</h2>
+
+    <ul class="showtime-list">
+      {% for showtime in showtimes %}
+        <li>
+          <span>{{ showtime['show_datetime'].strftime('%d %b %Y, %I:%M %p') }} – {{ showtime['venue'] }}</span>
+          <a href="{{ url_for('book_seats', showtime_id=showtime['id']) }}" class="btn">Book Now</a>
+        </li>
+      {% else %}
+        <li>No showtimes available.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>

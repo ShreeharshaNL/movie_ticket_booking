@@ -2,11 +2,11 @@ from flask import Flask, render_template, request, redirect, session, flash, jso
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+import re
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# Function to connect to MySQL database
 def get_db_connection():
     return mysql.connector.connect(
         host='localhost',
@@ -24,6 +24,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# Home route
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -54,31 +55,43 @@ def login():
 
     return render_template('login.html')
 
-# Register route
+# Register route with validations
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form['name']
-        phone = request.form['phno']
-        address = request.form['address']
-        email = request.form['email']
+        name = request.form['name'].strip()
+        phno = request.form['phno'].strip()
+        email = request.form['email'].strip()
         password = request.form['password']
-        hashed_password = generate_password_hash(password)
+        confirm_password = request.form['confirm_password']
 
-        try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO users (name, phone, address, email, password) VALUES (%s, %s, %s, %s, %s)",
-                (name, phone, address, email, hashed_password)
-            )
-            conn.commit()
+        if not name or not phno or not email or not password:
+            return render_template('register.html', error="All fields are required.")
+
+        if not re.fullmatch(r"\d{10}", phno):
+            return render_template('register.html', error="Phone number must be 10 digits.")
+
+        if not re.fullmatch(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$", password):
+            return render_template('register.html', error="Password must be 8+ characters with a letter, number, and special character.")
+
+        if password != confirm_password:
+            return render_template('register.html', error="Passwords do not match.")
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
             conn.close()
-            flash('Registration successful! You can now log in.', 'success')
-            return redirect('/login')
-        except mysql.connector.Error as err:
-            flash(f"Error: {err}", 'danger')
-            return redirect('/register')
+            return render_template('register.html', error="Email already registered.")
+
+        hashed_password = generate_password_hash(password)
+        cursor.execute("INSERT INTO users (name, phone, email, password) VALUES (%s, %s, %s, %s)",
+                       (name, phno, email, hashed_password))
+        conn.commit()
+        conn.close()
+        return redirect('/login')
 
     return render_template('register.html')
 
@@ -90,16 +103,104 @@ def dashboard():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("SELECT * FROM movies")
     movies = cursor.fetchall()
 
     for movie in movies:
+        # Fetch showtimes for movie (if needed)
         cursor.execute("SELECT * FROM showtimes WHERE movie_id = %s", (movie['id'],))
         showtimes = cursor.fetchall()
         movie['showtimes'] = showtimes
 
+        # Fetch average rating for each movie
+        cursor.execute("SELECT AVG(rating) as avg_rating FROM ratings WHERE movie_id = %s", (movie['id'],))
+        avg_rating_result = cursor.fetchone()
+        movie['avg_rating'] = avg_rating_result['avg_rating'] if avg_rating_result['avg_rating'] is not None else 0
+
     conn.close()
     return render_template('dashboard.html', movies=movies, username=session['username'])
+
+
+# Movie details with reviews and average rating
+@app.route('/movie/<int:movie_id>')
+def view_movie(movie_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM movies WHERE id = %s", (movie_id,))
+    movie = cursor.fetchone()
+
+    if not movie:
+        conn.close()
+        return "Movie not found", 404
+
+    cursor.execute("SELECT user_id, rating, review, created_at FROM ratings WHERE movie_id = %s ORDER BY created_at DESC", (movie_id,))
+    reviews = cursor.fetchall()
+
+    for r in reviews:
+        cursor.execute("SELECT name FROM users WHERE id = %s", (r['user_id'],))
+        user = cursor.fetchone()
+        r['user_name'] = user['name'] if user else 'Anonymous'
+
+    cursor.execute("SELECT AVG(rating) AS avg_rating, COUNT(*) AS count FROM ratings WHERE movie_id = %s", (movie_id,))
+    stats = cursor.fetchone()
+    avg_rating = stats['avg_rating'] if stats['avg_rating'] is not None else 0
+    review_count = stats['count']
+
+    conn.close()
+    return render_template('movie.html', movie=movie, reviews=reviews, avg_rating=avg_rating, review_count=review_count)
+
+
+# Submit or update rating and review
+@app.route('/rate_movie/<int:movie_id>', methods=['POST'])
+def rate_movie(movie_id):
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Please log in to rate.'}), 401
+
+    user_id = session.get('user_id')
+    data = request.get_json()
+    rating = data.get('rating')
+    review = data.get('review', '').strip()
+
+    if not rating or not (1 <= rating <= 5):
+        return jsonify({'success': False, 'message': 'Invalid rating.'}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id FROM ratings WHERE user_id=%s AND movie_id=%s", (user_id, movie_id))
+    existing = cursor.fetchone()
+
+    if existing:
+        cursor.execute(
+            "UPDATE ratings SET rating=%s, review=%s, created_at=NOW() WHERE id=%s",
+            (rating, review, existing[0])
+        )
+    else:
+        cursor.execute(
+            "INSERT INTO ratings (user_id, movie_id, rating, review) VALUES (%s, %s, %s, %s)",
+            (user_id, movie_id, rating, review)
+        )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'message': 'Rating submitted.'})
+
+@app.route('/select_showtime/<int:movie_id>')
+def select_showtime(movie_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM movies WHERE id = %s", (movie_id,))
+    movie = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM showtimes WHERE movie_id = %s", (movie_id,))
+    showtimes = cursor.fetchall()
+
+    conn.close()
+    return render_template('select_showtime.html', movie=movie, showtimes=showtimes)
+
 
 # Seat status route
 @app.route('/seats_status/<int:showtime_id>')
@@ -156,27 +257,27 @@ def book_selected_seats(showtime_id):
     finally:
         conn.close()
 
+@app.route('/thank_you')
+def thank_you():
+    return render_template('thank_you.html')
+
+# Payment routes
 @app.route("/payment", methods=["POST"])
 def payment():
-    # These values should be passed from the seat selection page
     showtime_id = request.form.get("showtime_id")
-    seat_ids = request.form.get("seat_ids")  # e.g., "12,13,14"
+    seat_ids = request.form.get("seat_ids")
     user_id = request.form.get("user_id")
 
     return render_template("payment.html", showtime_id=showtime_id, seat_ids=seat_ids, user_id=user_id)
 
 @app.route("/process_payment", methods=["POST"])
 def process_payment():
-    # Process payment here
-    # You can also insert the booking into the database
-
     showtime_id = request.form["showtime_id"]
     seat_ids = request.form["seat_ids"]
     user_id = request.form["user_id"]
     # Add booking logic here...
 
     return f"Payment successful! Booking confirmed for seats {seat_ids}."
-
 
 # Logout
 @app.route('/logout')
@@ -185,15 +286,6 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect('/')
 
-# Public movie listing
-@app.route('/visitor/movies')
-def visitor_movies():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM movies")
-    movies = cursor.fetchall()
-    conn.close()
-    return render_template('movies.html', movies=movies)
 
 # ---------------- ADMIN ROUTES ----------------
 
@@ -216,35 +308,33 @@ def admin_login():
             flash('Admin login successful!', 'success')
             return redirect('/admin/dashboard')
         else:
-            flash('Invalid credentials. Please try again.', 'danger')
+            flash('Invalid admin credentials.', 'danger')
             return redirect('/admin/login')
 
     return render_template('admin_login.html')
 
+# Admin dashboard
 @app.route('/admin/dashboard')
 @admin_required
 def admin_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM movies")  # Ensure you're fetching movies here
+    cursor.execute("SELECT * FROM movies")
     movies = cursor.fetchall()
     conn.close()
     return render_template('admin_dashboard.html', movies=movies)
-
-
 
 # Add movie
 @app.route('/admin/add_movie', methods=['GET', 'POST'])
 @admin_required
 def add_movie():
     if request.method == 'POST':
-        print(request.form)  # Print form data for debugging
         title = request.form.get('title')
         genre = request.form.get('genre')
         description = request.form.get('description')
 
         if not title or not genre or not description:
-            flash('All fields are required!', 'error')
+            flash('All fields are required!', 'danger')
             return render_template('add_movie.html')
 
         conn = get_db_connection()
@@ -258,73 +348,57 @@ def add_movie():
 
     return render_template('add_movie.html')
 
-# Admin edit movie route
+# Edit movie
 @app.route('/admin/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
 @admin_required
 def edit_movie(movie_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Check for the GET request to fetch the movie details
     if request.method == 'GET':
         cursor.execute("SELECT * FROM movies WHERE id = %s", (movie_id,))
-        movie = cursor.fetchone()  # Fetch the movie data
+        movie = cursor.fetchone()
+        conn.close()
 
-        # Check if movie is found
-        if movie is None:
+        if movie:
+            return render_template('update_movie.html', movie=movie)
+        else:
             flash('Movie not found!', 'danger')
             return redirect('/admin/dashboard')
 
-        # Close connection after data fetch
+    # POST
+    title = request.form.get('title')
+    genre = request.form.get('genre')
+    description = request.form.get('description')
+
+    if not title or not genre or not description:
+        flash('All fields are required!', 'danger')
+        return redirect(request.url)
+
+    try:
+        cursor.execute("UPDATE movies SET title=%s, genre=%s, description=%s WHERE id=%s",
+                       (title, genre, description, movie_id))
+        conn.commit()
+        flash('Movie updated successfully!', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Error updating movie: {str(e)}', 'danger')
+    finally:
         conn.close()
 
-        # Pass movie data to the template
-        return render_template('update_movie.html', movie=movie)
+    return redirect('/admin/dashboard')
 
-    # POST request for updating movie
-    if request.method == 'POST':
-        title = request.form.get('title')
-        genre = request.form.get('genre')
-        description = request.form.get('description')
-
-        if not title or not genre or not description:
-            flash('All fields are required!', 'danger')
-            return redirect(request.url)
-
-        # Update the movie details in the database
-        try:
-            cursor.execute("UPDATE movies SET title=%s, genre=%s, description=%s WHERE id=%s",
-                           (title, genre, description, movie_id))
-            conn.commit()
-            flash('Movie updated successfully!', 'success')
-        except Exception as e:
-            conn.rollback()  # Rollback in case of error
-            flash(f'Error updating movie: {str(e)}', 'danger')
-        finally:
-            conn.close()
-
-        return redirect('/admin/dashboard')
-
-
-
-
+# Delete movie
 @app.route('/admin/delete_movie/<int:movie_id>', methods=['POST'])
 @admin_required
 def delete_movie(movie_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    # Delete movie from the database
     cursor.execute("DELETE FROM movies WHERE id = %s", (movie_id,))
-    
-    # Commit changes and close the connection
     conn.commit()
     conn.close()
-    
-    flash('Movie deleted successfully!', 'info')  # Flash a success message
-    return redirect('/admin/dashboard')  # Redirect back to the dashboard
-
-
+    flash('Movie deleted successfully!', 'info')
+    return redirect('/admin/dashboard')
 
 # Manage showtimes
 @app.route('/admin/showtimes/<int:movie_id>', methods=['GET', 'POST'])
@@ -337,7 +411,8 @@ def manage_showtimes(movie_id):
 
     if request.method == 'POST':
         showtime = request.form['showtime']
-        cursor.execute("INSERT INTO showtimes (movie_id, showtime) VALUES (%s, %s)", (movie_id, showtime))
+        venue = request.form['venue']
+        cursor.execute("INSERT INTO showtimes (movie_id, show_datetime, venue) VALUES (%s, %s, %s)", (movie_id, showtime, venue))
         conn.commit()
         flash('Showtime added successfully!', 'success')
         return redirect(f'/admin/showtimes/{movie_id}')
@@ -345,32 +420,41 @@ def manage_showtimes(movie_id):
     conn.close()
     return render_template('manage_showtimes.html', movie_id=movie_id, showtimes=showtimes)
 
-# View bookings
 @app.route('/admin/bookings')
 @admin_required
 def manage_bookings():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
     cursor.execute("""
-        SELECT b.id, u.name AS user_name, m.name AS movie_name, s.seat_number, s.status
+        SELECT 
+            b.id AS booking_id,
+            u.name AS user_name,
+            m.title AS movie_title,
+            s.seat_number,
+            t.show_datetime,
+            t.venue
         FROM bookings b
         JOIN users u ON b.user_id = u.id
         JOIN showtimes t ON b.showtime_id = t.id
-        JOIN seats s ON b.seat_id = s.id
         JOIN movies m ON t.movie_id = m.id
+        JOIN seats s ON b.seat_id = s.id
+        ORDER BY t.show_datetime DESC
     """)
+    
     bookings = cursor.fetchall()
     conn.close()
-    return render_template('manage_bookings.html', bookings=bookings)
+
+    return render_template('admin_bookings.html', bookings=bookings)
 
 # Admin logout
 @app.route('/admin/logout')
 @admin_required
 def admin_logout():
-    session.clear()
+    session.pop('admin_id', None)
+    session.pop('admin_name', None)
     flash('Admin logged out.', 'success')
     return redirect('/')
 
-# Run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)

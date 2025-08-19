@@ -1,148 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Dashboard - FILMSMITH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+    body {
+      background: linear-gradient(135deg, #1f4037, #99f2c8);
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #333;
+    }
 
-        /* Navbar */
-        .navbar {
-            width: 100%;
-            background-color: #007bff;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+    }
 
-        .navbar h2 {
-            margin: 0;
-        }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+    }
 
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            padding: 8px 16px;
-            background-color: #ff3c38;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
+    header h1 {
+      font-weight: 700;
+      font-size: 32px;
+    }
 
-        .nav-links a:hover {
-            background-color: #d72c2a;
-        }
+    header a.logout-btn {
+      background-color: #ff3c38;
+      padding: 10px 24px;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 6px 12px rgba(255, 60, 56, 0.6);
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
 
-        /* Movie Cards */
-        .movie-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            width: 80%;
-            margin-top: 40px;
-        }
+    header a.logout-btn:hover {
+      background-color: #d0322c;
+    }
 
-        .movie-card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
 
-        .movie-card:hover {
-            transform: translateY(-5px);
-        }
+    .movie-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
 
-        .movie-card h4 {
-            font-size: 22px;
-            color: #333;
-            margin-bottom: 10px;
-        }
+    .movie-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
 
-        .movie-card p {
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 20px;
-        }
+    .movie-poster {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      border-bottom: 1px solid #ddd;
+      user-select: none;
+    }
 
-        .showtimes {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #444;
-        }
+    .movie-content {
+      padding: 16px 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        .btn {
-            display: inline-block;
-            background-color: #007bff;
-            color: #fff;
-            padding: 8px 16px;
-            margin-top: 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
+    .movie-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #222;
+      user-select: text;
+    }
 
-        .btn:hover {
-            background-color: #0056b3;
-        }
+    .movie-description {
+      font-size: 15px;
+      color: #555;
+      flex-grow: 1;
+      user-select: text;
+      margin-bottom: 16px;
+    }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                align-items: center;
-            }
+    .movie-rating {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffb400; /* Gold star color */
+      margin-bottom: 16px;
+      user-select: none;
+    }
 
-            .movie-cards {
-                width: 100%;
-            }
-        }
-    </style>
+    .btn-view {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 6px 12px rgba(40, 167, 69, 0.5);
+      text-align: center;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .btn-view:hover {
+      background-color: #218838;
+    }
+
+    @media (max-width: 768px) {
+      .movie-poster {
+        height: 280px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="navbar">
-            <h2>Welcome, {{ username }}!</h2>
-            <div class="nav-links">
-                <a href="{{ url_for('logout') }}">Logout</a>
-            </div>
-        </div>
+  <div class="container">
+    <header>
+      <h1>Welcome, {{ username }}!</h1>
+      <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </header>
 
-        <h3>Available Movies</h3>
-        <div class="movie-cards">
-            {% for movie in movies %}
-                <div class="movie-card">
-                    <h4>{{ movie['title'] }}</h4>
-                    
-
-                    <p>{{ movie['description'] }}</p>
-                    <h5>Showtimes:</h5>
-                    <div class="showtimes">
-                        {% for showtime in movie['showtimes'] %}
-                            <p>{{ showtime['show_datetime'].strftime('%d %b %Y, %I:%M %p') }} at {{ showtime['venue'] }}</p>
-                            <a href="{{ url_for('book_seats', showtime_id=showtime['id']) }}" class="btn">Book Now</a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
+    <section class="movies-grid">
+      {% for movie in movies %}
+      <div class="movie-card">
+        <img src="{{ url_for('static', filename='images/' ~ (movie.image_url or 'default_movie.jpg')) }}" alt="{{ movie.title }}" class="movie-poster" />
+        <div class="movie-content">
+          <div>
+            <h2 class="movie-title">{{ movie.title }}</h2>
+            <p class="movie-description">{{ movie.description | truncate(120, True) }}</p>
+          </div>
+          <div>
+            <div class="movie-rating">Rating: {{ movie.avg_rating | default(0) | round(1) }} / 5</div>
+            <a href="{{ url_for('view_movie', movie_id=movie.id) }}" class="btn-view">View Movie</a>
+          </div>
         </div>
-    </div>
+      </div>
+      {% else %}
+      <p>No movies available currently.</p>
+      {% endfor %}
+    </section>
+  </div>
 </body>
+
 </html>

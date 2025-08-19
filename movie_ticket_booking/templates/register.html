@@ -1,95 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Register - Movie Ticket Booking</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #eef1f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .register-box {
-            background: #fff;
-            padding: 2rem 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            width: 400px;
-        }
-        .register-box h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        .register-box label {
-            font-weight: 500;
-        }
-        .register-box input {
-            width: 100%;
-            padding: 0.8rem;
-            margin-top: 0.3rem;
-            margin-bottom: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-        }
-        .register-box button {
-            width: 100%;
-            padding: 0.8rem;
-            background-color: #3f51b5;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s;
-        }
-        .register-box button:hover {
-            background-color: #303f9f;
-        }
-        .flash {
-            padding: 0.7rem 1rem;
-            background: #e0f7fa;
-            color: #00796b;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    .form-container {
+      width: 350px;
+      margin: 60px auto;
+      padding: 25px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin: 5px 0;
+      text-align: center;
+    }
+    p {
+      text-align: center;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="register-box">
-        <h2>🎬 Register as a New User</h2>
+  <div class="form-container">
+    <h2>Register</h2>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="/register" onsubmit="return validateRegisterForm()">
+      <input type="text" name="name" id="name" placeholder="Full Name" required>
+      <input type="text" name="phno" id="phno" placeholder="Phone Number" required pattern="\d{10}" title="Enter 10-digit phone number">
+      <input type="email" name="email" id="email" placeholder="Email" required>
+      <input type="password" name="password" id="password" placeholder="Password" required>
+      <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login</a></p>
+  </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+  <script>
+    function validateRegisterForm() {
+      const phone = document.getElementById("phno").value;
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm_password").value;
+      const phoneRegex = /^\d{10}$/;
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 
-        <form method="POST" action="/register" onsubmit="return validateRegister()">
-            <label>Name</label>
-            <input type="text" name="name" id="name" required>
+      if (!phoneRegex.test(phone)) {
+        alert("Phone number must be exactly 10 digits.");
+        return false;
+      }
 
-            <label>Phone Number</label>
-            <input type="text" name="phno" id="phno" required>
+      if (!passwordRegex.test(password)) {
+        alert("Password must be at least 8 characters and include one letter, one number, and one special character.");
+        return false;
+      }
 
-            <label>Address</label>
-            <input type="text" name="address" id="address" required>
+      if (password !== confirm) {
+        alert("Passwords do not match.");
+        return false;
+      }
 
-            <label>Email</label>
-            <input type="email" name="email" id="email" required>
-
-            <label>Password</label>
-            <input type="password" name="password" id="password" required>
-
-            <button type="submit">Register</button>
-        </form>
-    </div>
+      return true;
+    }
+  </script>
 </body>
 </html>

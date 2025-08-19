@@ -1,29 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Seat Selection for Showtime {{ showtime_id }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        /* Basic container */
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        /* Screen label styling */
+        .screen-label {
+            width: 100%;
+            background-color: #444;
+            color: white;
+            font-weight: bold;
+            padding: 12px 0;
+            border-radius: 8px;
+            font-size: 1.25rem;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            user-select: none;
+        }
+
+        /* Seat layout */
+        .theater-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Seat button styles */
+        .seat {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            user-select: none;
+            border: 2px solid #28a745;
+            background-color: #66cc66;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .seat.booked {
+            background-color: #ff6b6b;
+            border-color: #e03e3e;
+            cursor: not-allowed;
+            color: #fff;
+            opacity: 0.7;
+        }
+
+        .seat:hover:not(.booked) {
+            background-color: #45a049;
+            transform: translateY(-3px);
+        }
+
+        .seat.selected {
+            background-color: #ffeb3b;
+            color: #444;
+            border-color: #fbc02d;
+            transform: translateY(-3px);
+        }
+
+        /* Book button */
+        button.btn {
+            padding: 12px 28px;
+            font-size: 1.1rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+
+        button.btn:hover {
+            background-color: #1e7e34;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Select Your Seats for Showtime {{ showtime_id }}</h1>
-        
+
         <form action="{{ url_for('seat_selection', showtime_id=showtime_id) }}" method="POST">
-            <div class="grid-container">
-                {% for seat in seats %}
-                    <div class="seat {% if seat.status == 'booked' %}booked{% else %}available{% endif %}">
-                        <label>
-                            <input type="checkbox" name="selected_seats" value="{{ seat.seat_number }}" {% if seat.status == 'booked' %}disabled{% endif %}>
-                            {{ seat.seat_number }}
-                        </label>
-                    </div>
+            <div class="theater-layout seat-layout">
+                <div class="screen-label">SCREEN</div>
+
+                {% for row in ['A', 'B', 'C'] %}
+                <div class="row">
+                    {% for num in range(1, 6) %}
+                    {% set seat_number = row ~ num %}
+                    {% set seat = seats | selectattr('seat_number', 'equalto', seat_number) | list | first %}
+                    <button
+                        type="button"
+                        class="seat {% if seat.status == 'booked' %}booked{% endif %}"
+                        data-seat-id="{{ seat_number }}"
+                        {% if seat.status == 'booked' %}disabled{% endif %}
+                        onclick="toggleSeatSelection(this)">
+                        {{ seat_number }}
+                    </button>
+                    <input type="checkbox" name="selected_seats" value="{{ seat_number }}" style="display:none" />
+                    {% endfor %}
+                </div>
                 {% endfor %}
             </div>
-            
+
             <button type="submit" class="btn">Book Selected Seats</button>
         </form>
     </div>
+
+    <script>
+        function toggleSeatSelection(button) {
+            if (button.classList.contains('booked')) return;
+
+            button.classList.toggle('selected');
+
+            // Toggle the hidden checkbox corresponding to this seat
+            const seatId = button.getAttribute('data-seat-id');
+            const form = button.closest('form');
+            const checkbox = form.querySelector(`input[type="checkbox"][value="${seatId}"]`);
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+    </script>
 </body>
+
 </html>

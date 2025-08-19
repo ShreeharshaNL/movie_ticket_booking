@@ -40,6 +40,20 @@ h1 {
     color: #333;
 }
 
+.screen-label {
+    width: 100%;
+    background-color: #444;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    user-select: none;
+}
+
 /* Flexbox for Cards (Movies, Dashboard) */
 .cards {
     display: flex;

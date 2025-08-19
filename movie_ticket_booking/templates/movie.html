@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ movie.title }} - Movie Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+    <style>
+        /* Reset & base */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #e6f0ea, #f4f7fa);
+            color: #222;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            text-decoration: none;
+            color: #28a745;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #1e7e34;
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px 50px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Layout */
+        .top-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 35px;
+        }
+
+        .poster {
+            flex: 1 1 320px;
+            max-width: 320px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            object-fit: cover;
+            height: 460px;
+            width: 100%;
+            display: block;
+            margin: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .poster:hover {
+            transform: scale(1.02);
+        }
+
+        .details {
+            flex: 2 1 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .details h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+        }
+
+        .details p {
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            color: #444;
+            letter-spacing: 0.02em;
+        }
+
+        /* Average rating */
+        .avg-rating {
+            margin: 25px 0;
+            font-weight: 700;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #444;
+        }
+
+        .avg-rating .stars {
+            color: gold;
+            font-size: 1.8rem;
+            user-select: none;
+        }
+
+        .stars span {
+            margin-right: 4px;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Rating form */
+        #rating-form {
+            margin-top: 40px;
+            background: #fafafa;
+            padding: 25px 30px;
+            border-radius: 14px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.03);
+            transition: box-shadow 0.3s ease;
+        }
+
+        #rating-form:hover {
+            box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.06);
+        }
+
+        #rating-form label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #222;
+        }
+
+        /* Star rating horizontal layout */
+        .star-rating {
+            font-size: 2.2rem;
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-start;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #bbb;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .star-rating input[type="radio"]:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffca28;
+            text-shadow: 0 0 6px #ffca28;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1.8px solid #ddd;
+            resize: vertical;
+            font-size: 1.05rem;
+            font-family: inherit;
+            margin-bottom: 25px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 6px #28a745aa;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            padding: 14px 36px;
+            font-size: 1.25rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e7e34;
+            box-shadow: 0 8px 25px rgba(30, 126, 52, 0.65);
+        }
+
+        /* Reviews */
+        #reviews-section {
+            margin-top: 50px;
+        }
+
+        #reviews-section h3 {
+            font-weight: 900;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 8px;
+            color: #28a745;
+            letter-spacing: 0.04em;
+        }
+
+        .review-list {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .review {
+            background: #fafafa;
+            padding: 22px 25px;
+            border-radius: 14px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+            width: 280px;
+            box-sizing: border-box;
+        }
+
+        .review:hover {
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .review strong {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .review-stars {
+            color: gold;
+            font-size: 1.2rem;
+            margin: 8px 0;
+            display: flex;
+            gap: 4px;
+        }
+
+        .review p {
+            margin: 12px 0 0 0;
+            line-height: 1.5;
+            color: #555;
+            font-size: 1.05rem;
+        }
+
+        .review small {
+            color: #888;
+            font-style: italic;
+            letter-spacing: 0.03em;
+        }
+
+        /* Cast Section */
+        .cast-section {
+            margin-top: 50px;
+        }
+
+        .cast-section h3 {
+            font-weight: 900;
+            margin-bottom: 25px;
+            color: #28a745;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+
+        .cast-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .cast-member {
+            width: 110px;
+            text-align: center;
+            color: #444;
+            transition: transform 0.3s ease;
+        }
+
+        .cast-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .cast-member img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Book Tickets button */
+        .book-btn {
+            display: block;
+            width: max-content;
+            margin: 45px auto 0 auto;
+            background-color: #28a745;
+            color: white;
+            padding: 16px 44px;
+            font-size: 1.35rem;
+            border-radius: 14px;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.6);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+        }
+
+        .book-btn:hover {
+            background-color: #1e7e34;
+            box-shadow: 0 9px 26px rgba(30, 126, 52, 0.75);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .details {
+                width: 100%;
+            }
+
+            .poster {
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="top-section">
+            <!-- Movie Poster -->
+            {% set image = movie['image_url'] if movie['image_url'] else 'default_movie.jpg' %}
+            <img src="{{ url_for('static', filename='images/' ~ image) }}" alt="{{ movie.title }}" class="poster" />
+
+            <!-- Movie Details -->
+            <div class="details">
+                <h1>{{ movie.title }}</h1>
+                <p><strong>Genre:</strong> {{ movie.genre or 'N/A' }}</p>
+                <p><strong>Duration:</strong> {{ movie.duration or 'N/A' }}</p>
+                <p><strong>Release Date:</strong> {{ movie.release_date.strftime('%d %B %Y') if movie.release_date else 'N/A' }}</p>
+                <p><strong>Director:</strong> {{ movie.director or 'N/A' }}</p>
+                <p><strong>Producer:</strong> {{ movie.producer or 'N/A' }}</p>
+                <p><strong>Description:</strong> {{ movie.description or 'No description available.' }}</p>
+
+                <!-- Average Rating -->
+                <div class="avg-rating">
+                    <strong>Average Rating:</strong>
+                    <div class="stars">
+                        {% set avg = avg_rating | round(0, 'floor') %}
+                        {% for i in range(1, 6) %}
+                        {% if i <= avg %} <span>&#9733;</span>
+                        {% else %}
+                        <span style="color:#ccc;">&#9733;</span>
+                        {% endif %}
+                        {% endfor %}
+                        <span style="margin-left:10px; font-weight:500;">({{ review_count }} review{{ 's' if review_count != 1 else '' }})</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Submission Form -->
+        <form id="rating-form">
+            <label for="rating">Your Rating:</label>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label for="star5">&#9733;</label>
+
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label for="star4">&#9733;</label>
+
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label for="star3">&#9733;</label>
+
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label for="star2">&#9733;</label>
+
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label for="star1">&#9733;</label>
+            </div>
+
+            <label for="review">Your Review:</label>
+            <textarea id="review" name="review" placeholder="Write your review here..."></textarea>
+
+            <button type="submit">Submit Review</button>
+        </form>
+
+        <!-- User Reviews -->
+        <div id="reviews-section">
+            <h3>User Reviews</h3>
+            <div class="review-list">
+                {% if reviews %}
+                {% for r in reviews %}
+                <div class="review">
+                    <strong>{{ r.user_name }}</strong>
+                    <div class="review-stars">
+                        {% for i in range(1, 6) %}
+                        {% if i <= r.rating %} <span>&#9733;</span> <!-- filled star -->
+                        {% else %}
+                        <span style="color:#ccc;">&#9733;</span> <!-- empty star -->
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p>{{ r.review or '' }}</p>
+                    <small><em>{{ r.created_at.strftime('%d %b %Y') }}</em></small>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No reviews yet. Be the first to rate this movie!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cast Section -->
+        {% if movie.cast %}
+        <div class="cast-section">
+            <h3>Cast</h3>
+            <div class="cast-list">
+                {% for actor in movie.cast.split(',') %}
+                <div class="cast-member">
+                    <img src="{{ url_for('static', filename='images/guest.png') }}" alt="{{ actor.strip() }}" />
+                    <p>{{ actor.strip() }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('select_showtime', movie_id=movie.id) }}" class="book-btn">Book Tickets</a>
+    </div>
+
+    <script>
+        document.getElementById('rating-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const review = document.getElementById('review').value.trim();
+
+            if (!rating) {
+                alert('Please select a rating.');
+                return;
+            }
+
+            const response = await fetch('{{ url_for("rate_movie", movie_id=movie.id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ rating: parseInt(rating), review: review })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Thank you for your review!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
